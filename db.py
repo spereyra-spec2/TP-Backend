@@ -27,27 +27,47 @@ def obtener_partidos(offset: int, limit: int, equipo: str | None, fecha: datetim
                     partidos.append(fila[1])
                 coincidencias += 1
         
+        if len(partidos) == 0:
+            return jsonify({
+                "errors": [
+                    {
+                        "code": 404,
+                        "message": "No encontrado",
+                        "level": "info",
+                        "description": "No se encontraron partidos que coincidieran con los parámetros de búsqueda especificados."
+                    }
+                ]
+            }), 404
+        
         return jsonify({
             "partidos": partidos,
             "_links": {
-                "_first": url_for("partidos", _offset=0, _limit=limit, _external=True),
-                "_prev": url_for(
-                    "partidos",
-                    _offset = offset - limit if offset - limit >= 0 else (coincidencias - 1) // limit * limit if coincidencias > 0 else 0,
-                    _limit=limit,
-                    _external=True
-                ),
-                "_next": url_for(
-                    "partidos",
-                    _offset = limit + offset if limit + offset < coincidencias else 0,
-                    _limit=limit,
-                    _external=True
-                ),
-                "_last": url_for(
-                    "partidos",
-                    _offset = (coincidencias - 1) // limit * limit if coincidencias > 0 else 0,
-                    _limit=limit,
-                    _external=True
-                )
+                "_first": {
+                    "href": url_for("partidos", _offset=0, _limit=limit, _external=True),
+                },
+                "_prev": {
+                    "href": url_for(
+                                "partidos",
+                                _offset = offset - limit if offset - limit >= 0 else (coincidencias - 1) // limit * limit if coincidencias > 0 else 0,
+                                _limit=limit,
+                                _external=True
+                            )
+                },
+                "_next": {
+                    "href": url_for(
+                                "partidos",
+                                _offset = limit + offset if limit + offset < coincidencias else 0,
+                                _limit=limit,
+                                _external=True
+                            ),
+                },
+                "_last": {
+                    "href": url_for(
+                                "partidos",
+                                _offset = (coincidencias - 1) // limit * limit if coincidencias > 0 else 0,
+                                _limit=limit,
+                                _external=True
+                            )
+                }
             }
         }), 200
