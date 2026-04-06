@@ -1,2 +1,3 @@
-# TP-Backend
-Segundo TP de la materia Introducción al Desarrollo de Software
+# TP Backend
+
+Endpoint GET /partidos con paginación y filtros opcionales por equipo, fecha y fase del torneo
