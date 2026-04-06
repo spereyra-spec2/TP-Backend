@@ -23,10 +23,9 @@ def obtener_partidos(offset: int, limit: int, equipo: str | None, fecha: datetim
             if ((equipo is None or equipo.lower() in fila[1]["equipo_local"].lower() or equipo.lower() in fila[1]["equipo_visitante"].lower()) and
                (fecha is None or datetime.strptime(fila[1]["fecha"], "%Y-%m-%d") == fecha) and
                (fase is None or fila[1]["fase"].lower() == fase.lower())):
-                coincidencias += 1
-
                 if coincidencias >= offset and coincidencias < offset + limit:
                     partidos.append(fila[1])
+                coincidencias += 1
         
         return jsonify({
             "partidos": partidos,
