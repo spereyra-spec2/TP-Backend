@@ -19,12 +19,16 @@ def obtener_partidos(offset: int, limit: int, equipo: str | None, fecha: datetim
         partidos: list = []
         coincidencias: int = 0
 
-        for fila in enumerate(lector):
-            if ((equipo is None or equipo.lower() in fila[1]["equipo_local"].lower() or equipo.lower() in fila[1]["equipo_visitante"].lower()) and
-               (fecha is None or datetime.strptime(fila[1]["fecha"], "%Y-%m-%d") == fecha) and
-               (fase is None or fila[1]["fase"].lower() == fase.lower())):
+        for fila in lector:
+            if ((equipo is None or equipo.lower() in fila["equipo_local"].lower() or equipo.lower() in fila["equipo_visitante"].lower()) and
+               (fecha is None or datetime.strptime(fila["fecha"], "%Y-%m-%d") == fecha) and
+               (fase is None or fila["fase"].lower() == fase.lower())):
+                
+                # Cuenta todas las coincidencias, pero solo agrega la fila al resultado si está dentro del rango _offset y _limit
                 if coincidencias >= offset and coincidencias < offset + limit:
-                    partidos.append(fila[1])
+                    partidos.append(fila)
+                
+                # Cuenta el total de coincidencias para paginación
                 coincidencias += 1
         
         if len(partidos) == 0:
