@@ -1,7 +1,7 @@
 import csv
 import os
 
-ARCHIVO_CSV = 'db/usuarios.csv'
+ARCHIVO_CSV = 'usuarios.csv'
 CAMPOS = ['id', 'nombre', 'email']
 
 
