@@ -5,17 +5,15 @@ ARCHIVO_CSV = 'usuarios.csv'
 CAMPOS = ['id', 'nombre', 'email']
 
 
-def _asegurar_archivo():
-    os.makedirs(os.path.dirname(ARCHIVO_CSV), exist_ok=True)
-
+def asegurar_archivo(): # Si el archivo no existe, se crea uno.
     if not os.path.exists(ARCHIVO_CSV):
         with open(ARCHIVO_CSV, 'w', newline='', encoding='utf-8') as archivo:
             writer = csv.DictWriter(archivo, fieldnames=CAMPOS)
             writer.writeheader()
 
 
-def leer_usuarios():
-    _asegurar_archivo()
+def leer_usuarios(): #Lee y devuelve una lista de diccionarios con la id convertida en int(entero).
+    asegurar_archivo()
 
     with open(ARCHIVO_CSV, 'r', newline='', encoding='utf-8') as archivo:
         reader = csv.DictReader(archivo)
@@ -26,55 +24,71 @@ def leer_usuarios():
         return usuarios
 
 
-def _guardar_usuarios(usuarios):
-    _asegurar_archivo()
+def guardar_usuarios(usuarios): # Borra el contenido del Archivo para remplazarlo por el parametro de la función.
+    asegurar_archivo()
 
     with open(ARCHIVO_CSV, 'w', newline='', encoding='utf-8') as archivo:
         writer = csv.DictWriter(archivo, fieldnames=CAMPOS)
         writer.writeheader()
         writer.writerows(usuarios)
 
+#Place Holder de Función en caso que mi equipo me pida hacer post en App.py (no estoy seguro)
+#--------------------------------------------------------------------------------------------------------------------
+#def crear_usuario(nombre, email): # Guarda un nuevo usuario a Archivo_cvs.
+#    usuarios = leer_usuarios()
+#    ids = []
+#    for usuario in usuarios:
+#        ids.append(usuario['id'])
+#
+#    siguiente_id = max(ids, default=0) + 1 # Devuelve el maximo de las ids. Si esta vacio, devuelve 0 como la id.
+#
+#    nuevo_usuario = {
+#        'id': siguiente_id,
+#        'nombre': nombre, # Parametro de función.
+#        'email': email, # Parametro de función.
+#    }
+#
+#    usuarios.append(nuevo_usuario) # Agrega el diccionario creado a la lista de diccionario de usuarios.
+#    guardar_usuarios(usuarios) # Borra y remplaza el contenido del archivo por el parametro de función.
+#    return nuevo_usuario
+#---------------------------------------------------------------------------------------------------------------------
 
-def crear_usuario(nombre, email):
+
+def obtener_usuario(usuario_id): # Lee y devuelve el usuario buscado por id (Parametro de función).
     usuarios = leer_usuarios()
-    siguiente_id = max((usuario['id'] for usuario in usuarios), default=0) + 1
+    for usuario in usuarios:
+        if usuario['id'] == usuario_id:
+            return usuario
 
-    nuevo_usuario = {
-        'id': siguiente_id,
-        'nombre': nombre,
-        'email': email,
-    }
-
-    usuarios.append(nuevo_usuario)
-    _guardar_usuarios(usuarios)
-    return nuevo_usuario
+    return None
 
 
-def obtener_usuario(usuario_id):
-    usuarios = leer_usuarios()
-    return next((usuario for usuario in usuarios if usuario['id'] == usuario_id), None)
-
-
-def actualizar_usuario(usuario_id, nombre, email):
+def actualizar_usuario(usuario_id, nombre, email): # Si la Id del parametro coincide, remplaza los datos del usuario.
     usuarios = leer_usuarios()
 
     for usuario in usuarios:
         if usuario['id'] == usuario_id:
             usuario['nombre'] = nombre
             usuario['email'] = email
-            _guardar_usuarios(usuarios)
+            guardar_usuarios(usuarios)
             return usuario
 
     return None
 
 
-def eliminar_usuario(usuario_id):
+def eliminar_usuario(usuario_id): # Elimina al usuario buscado por parametro de función.
     usuarios = leer_usuarios()
-    usuario = next((item for item in usuarios if item['id'] == usuario_id), None)
+    usuario = None
+
+    for i in usuarios:
+        if i['id'] == usuario_id:
+            usuario = i
+            usuarios.remove(i)
+            break
 
     if not usuario:
         return None
 
-    usuarios_filtrados = [item for item in usuarios if item['id'] != usuario_id]
-    _guardar_usuarios(usuarios_filtrados)
+    guardar_usuarios(usuarios)
     return usuario
+
