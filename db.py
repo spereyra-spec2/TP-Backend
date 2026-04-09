@@ -1,77 +1,45 @@
-import csv, os
-from datetime import datetime
-from flask import jsonify, Response, url_for
+from config import CONTRASENA_DB, NOMBRE_DB, USUARIO_DB
+from typing import Any
+import mysql.connector
 
-ARCHIVO_CSV: str = "partidos.csv"
-CAMPOS: list = ["id", "equipo_local", "equipo_visitante", "fecha", "fase", "resultado"]
+config_db: dict[str, str] = {
+    "host": "localhost",
+    "user": USUARIO_DB,
+    "password": CONTRASENA_DB,
+    "database": NOMBRE_DB,
+    # "charset": "utf8mb4",
+    # "collation": "utfmb4_0900_ai_ci"
+}
 
-def inicializar_archivo() -> None:
-    if not os.path.exists(ARCHIVO_CSV):
-        with open(ARCHIVO_CSV, mode="w", newline="", encoding="utf-8") as archivo:
-            escritor = csv.DictWriter(archivo, fieldnames=CAMPOS)
-            escritor.writeheader()
+def obtener_conexion() -> mysql.connector.MySQLConnection:
+    return mysql.connector.connect(**config_db)
 
-def obtener_partidos(offset: int, limit: int, equipo: str | None, fecha: datetime | None, fase: str | None) -> Response:
-    inicializar_archivo()
+def inicializar_db(path: str) -> None:
+    with open(path) as archivo:
+        script_sql: str = archivo.read()
 
-    with open(ARCHIVO_CSV, mode="r", encoding="utf-8") as archivo:
-        lector = csv.DictReader(archivo)
-        partidos: list = []
-        coincidencias: int = 0
+    with mysql.connector.connect(
+        host = config_db["host"],
+        user = config_db["user"],
+        password = config_db["password"],
+        # charset = "utf8mb4",
+        # collation = "utfmb4_0900_ai_ci"
+    ) as conexion:
+        # conexion.set_charset_collation("utf8mb4", "utfmb4_0900_ai_ci")
+        with conexion.cursor(dictionary = True) as cursor:
+            for consulta in script_sql.split(';'):
+                cursor.execute(consulta)
+                print(consulta)
+            conexion.commit()
 
-        for fila in lector:
-            if ((equipo is None or equipo.lower() in fila["equipo_local"].lower() or equipo.lower() in fila["equipo_visitante"].lower()) and
-               (fecha is None or datetime.strptime(fila["fecha"], "%Y-%m-%d") == fecha) and
-               (fase is None or fila["fase"].lower() == fase.lower())):
-                
-                # Cuenta todas las coincidencias, pero solo agrega la fila al resultado si está dentro del rango _offset y _limit
-                if coincidencias >= offset and coincidencias < offset + limit:
-                    partidos.append(fila)
-                
-                # Cuenta el total de coincidencias para paginación
-                coincidencias += 1
-        
-        if len(partidos) == 0:
-            return jsonify({
-                "errors": [
-                    {
-                        "code": 404,
-                        "message": "No encontrado",
-                        "level": "info",
-                        "description": "No se encontraron partidos que coincidieran con los parámetros de búsqueda especificados."
-                    }
-                ]
-            }), 404
-        
-        return jsonify({
-            "partidos": partidos,
-            "_links": {
-                "_first": {
-                    "href": url_for("partidos", _offset=0, _limit=limit, _external=True),
-                },
-                "_prev": {
-                    "href": url_for(
-                                "partidos",
-                                _offset = offset - limit if offset - limit >= 0 else (coincidencias - 1) // limit * limit if coincidencias > 0 else 0,
-                                _limit=limit,
-                                _external=True
-                            )
-                },
-                "_next": {
-                    "href": url_for(
-                                "partidos",
-                                _offset = limit + offset if limit + offset < coincidencias else 0,
-                                _limit=limit,
-                                _external=True
-                            ),
-                },
-                "_last": {
-                    "href": url_for(
-                                "partidos",
-                                _offset = (coincidencias - 1) // limit * limit if coincidencias > 0 else 0,
-                                _limit=limit,
-                                _external=True
-                            )
-                }
-            }
-        }), 200
+def ejecutar_consulta(query: str) -> list[dict[str, Any]] | None:
+    with obtener_conexion() as conexion:
+        # conexion.set_charset_collation("utf8mb4", "utfmb4_0900_ai_ci")
+        with conexion.cursor(dictionary = True) as cursor:
+            cursor.execute(query)
+            print(query)
+
+            if cursor.description:
+                return cursor.fetchall()
+            
+            conexion.commit()
