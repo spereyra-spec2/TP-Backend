@@ -1,24 +1,11 @@
-from flask import Flask, request, jsonify
-import db
+from flask import Flask
+from init_db import init_db
+from routes.partidos import partidos_bp
 
 app = Flask(__name__)
+init_db()
 
-
-# GET y DELETE partidos por id
-
-@app.route('/partidos/<int:id>', methods=['GET'])
-def obtener_partido(id):
-    partido = db.obtener_partido(id)
-    if partido:
-        return jsonify(partido), 200
-    return jsonify({'error': 'Partido no encontrado'}), 404
-
-@app.route('/partidos/<int:id>', methods=['DELETE'])
-def eliminar_partido(id):
-    partido = db.eliminar_partido(id)
-    if partido:
-        return jsonify({'message': 'Partido eliminado'}), 200
-    return jsonify({'error': 'Partido no encontrado'}), 404
+app.register_blueprint(partidos_bp, url_prefix="/partidos")
 
 
 if __name__ == '__main__':
