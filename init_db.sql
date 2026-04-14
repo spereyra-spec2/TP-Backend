@@ -18,15 +18,3 @@ CREATE TABLE IF NOT EXISTS partido (
     FOREIGN KEY (resultado) REFERENCES resultado(id)
 );
 
-
-INSERT INTO resultado (local, visitante) VALUES
-(2, 0), 
-(1, 1);
-
-
-INSERT INTO partido (equipo_local, equipo_visitante, fecha, fase, resultado) VALUES
--- Grupo A
-('Mexico',        'Sudafrica',        '2026-06-11', 'grupos', 1),
-('Corea del Sur', 'Republica Checa',  '2026-06-12', 'grupos', 2),
-('Mexico',        'Corea del Sur',    '2026-06-16', 'grupos', NULL),
-('Sudafrica',     'Republica Checa',  '2026-06-16', 'grupos', NULL);
