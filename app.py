@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 from routes.patch_partido import partidos_bp
-from routes.get_usuarios import usuarios_bp
+from routes.usuarios import usuarios_bp
 
 app = Flask(__name__)
 CORS(app)

@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS basedatos;
-USE basedatos;
+CREATE DATABASE IF NOT EXISTS prode_db;
+USE prode_db;
 
 CREATE TABLE IF not EXISTS partidos (
 	ID INT PRIMARY KEY AUTO_INCREMENT,
@@ -11,15 +11,7 @@ CREATE TABLE IF not EXISTS partidos (
 	fase VARCHAR(50)
 );
 CREATE TABLE IF not EXISTS usuarios (
-	UID INT PRIMARY KEY AUTO_INCREMENT,
-	name VARCHAR(50),
-	age INT
+	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	nombre VARCHAR(60) NOT NULL,
+	email VARCHAR(90) NOT NULL UNIQUE
 );
-
-
-
-INSERT INTO partidos
-	(local, visitante, estadio, ciudad, fecha, fase)
-VALUES	
-	("River", "Boca", "mi casa", "pehuajo", "mañana", "128avos"),
-	("union", "defensores", "estadio curaru", "curaru", "ayer", "final");

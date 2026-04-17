@@ -1,12 +1,13 @@
+from config import user, password, database, host
 import mysql.connector
 
 with open("init_db.sql") as f:
     sql = f.read()
 
 conn = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="P!assW0rd33"
+    host=host,
+    user=user,
+    password=password,
 )
 
 cursor = conn.cursor()
