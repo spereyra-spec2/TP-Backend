@@ -7,7 +7,7 @@ def get_connection(): #Establece conneción con la base de datos.
         user=config.user,
         password=config.password,
         database=config.database
-    )---
+    )
 
 def get_user(id): #Obtiene el usuario con el ID introducido en la base de datos.
     conn = get_connection()
