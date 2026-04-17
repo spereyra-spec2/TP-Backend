@@ -9,14 +9,14 @@ CREATE TABLE IF NOT EXISTS partidos (
     goles_visitante INT DEFAULT 0,
     fecha DATETIME DEFAULT CURRENT_TIMESTAMP
 );
-INSERT INTO Constantino.partidos (equipo_local, equipo_visitante, goles_local, goles_visitante)
+INSERT INTO mundial.partidos (equipo_local, equipo_visitante, goles_local, goles_visitante)
 VALUES ('Argentina', 'Francia', 0, 0);
-INSERT INTO Constantino.partidos (equipo_local, equipo_visitante, goles_local, goles_visitante)
+INSERT INTO mundial.partidos (equipo_local, equipo_visitante, goles_local, goles_visitante)
 VALUES ('Uruguay', 'Brasil', 0, 0);
 
-INSERT INTO Constantino.partidos (equipo_local, equipo_visitante, goles_local, goles_visitante)
+INSERT INTO mundial.partidos (equipo_local, equipo_visitante, goles_local, goles_visitante)
 VALUES ('Alemania', 'Japon', 0, 0);
-INSERT INTO Constantino.partidos (equipo_local, equipo_visitante, goles_local, goles_visitante)
+INSERT INTO mundial.partidos (equipo_local, equipo_visitante, goles_local, goles_visitante)
 VALUES ('España', 'Belgica', 0, 0);
 SELECT * FROM mundial.partidos;
 TRUNCATE TABLE mundial.partidos;
