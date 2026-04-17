@@ -42,7 +42,7 @@ def put_user(data,id): #Actualiza los datos del usuario con el ID proporcionado 
         if conn:
             conn.close()
 
-def delete_user(id):
+def delete_user(id): # Elimina los datos del usuario con el ID proporcionado para la base de datos.
     conn = get_connection()
     cur = conn.cursor()
     try:
