@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from db import get_db_connection
+from db import get_connection
 
 
 partidos_bp = Blueprint('partidos', __name__)
@@ -9,7 +9,7 @@ partidos_bp = Blueprint('partidos', __name__)
 def remplazar_datos_partido(id):
     #Abro conexión a la base de datos y creo un cursor para ejecutar consultas
     datos = request.get_json() 
-    conexion = get_db_connection()
+    conexion = get_connection()
     cursor = conexion.cursor(dictionary=True)    
     cursor.execute("SELECT id FROM partidos WHERE id = %s", (id,))
     #Tomo el primer valor consultado.

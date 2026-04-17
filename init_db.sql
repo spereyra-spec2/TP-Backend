@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS Constantino;
-USE Constantino;
+CREATE DATABASE IF NOT EXISTS mundial;
+USE mundial;
 
 CREATE TABLE IF NOT EXISTS partidos (
     ID INT AUTO_INCREMENT PRIMARY KEY,
@@ -18,5 +18,5 @@ INSERT INTO Constantino.partidos (equipo_local, equipo_visitante, goles_local, g
 VALUES ('Alemania', 'Japon', 0, 0);
 INSERT INTO Constantino.partidos (equipo_local, equipo_visitante, goles_local, goles_visitante)
 VALUES ('España', 'Belgica', 0, 0);
-SELECT * FROM Constantino.partidos;
-TRUNCATE TABLE Constantino.partidos;
+SELECT * FROM mundial.partidos;
+TRUNCATE TABLE mundial.partidos;
