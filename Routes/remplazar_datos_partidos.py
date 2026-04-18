@@ -5,7 +5,7 @@ from db import get_connection
 partidos_bp = Blueprint('partidos', __name__)
 
 
-@partidos_bp.route('/Partidos/<int:id>/Resultados', methods=['PUT'])
+@partidos_bp.route('/<int:id>/Resultados', methods=['PUT'])
 def remplazar_datos_partido(id):
     #Abro conexión a la base de datos y creo un cursor para ejecutar consultas
     datos = request.get_json() 
@@ -16,17 +16,17 @@ def remplazar_datos_partido(id):
     partido = cursor.fetchone()
         
     if not partido:
-            return jsonify({"code": 404, "description": f"El partido número {id} no existe"}), 404
+            return jsonify({"code": 404, "message": "No encontrado", "level":"error", "description": f"El partido número {id} no existe"}), 404
 
     try:
         
         if not datos or 'goles_local' not in datos or 'goles_visitante' not in datos:
-            return jsonify({"code": 400, "description": "Faltan campos obligatorios"}), 400
+            return jsonify({"code": 400, "message": "Petición inválida.", "level": "error", "description": "Faltan campos obligatorios",}), 400
     
         if not isinstance(datos['goles_local'], int) or not isinstance(datos['goles_visitante'], int):
-            return jsonify({"code": 400, "description": "Los datos a ingresar deben de ser un número"}), 400
+            return jsonify({"code": 400, "message": "Petición inválida", "level": "error", "description": "Los datos a ingresar deben de ser un número"}), 400
         if(id < 0):
-            return jsonify({"code": 400, "description": f"El id:{id} no es un número válido "}), 400
+            return jsonify({"code": 400, "message": "Petición inválida", "level": "error", "description": f"El id:{id} no es un número válido"}), 400
 
         query = "UPDATE partidos SET goles_local = %s, goles_visitante = %s WHERE id = %s"
         datos_ingresados = (datos['goles_local'], datos['goles_visitante'], id)
@@ -34,12 +34,12 @@ def remplazar_datos_partido(id):
         cursor.execute(query, datos_ingresados)
         conexion.commit() #Guardo cambios en la base de datos
 
-        return jsonify({"code": 204, "description": ''}), 204
+        return '', 204
     
 
-    except mysql.connector.Error as error:
+    except Exception as error:
         print(f"Error de MySQL: {error}")
-        return jsonify({"code": 500, "description": "Error interno al acceder a la base de datos"}), 500
+        return jsonify({"code": 500, "message": "Error interno", "level": "error", "description": "Error interno al acceder a la base de datos"}), 500
 
     finally:
         cursor.close()
