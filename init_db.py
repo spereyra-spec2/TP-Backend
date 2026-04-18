@@ -1,12 +1,15 @@
 import mysql.connector
 
-with open ("init_db.py") as f:
+from config import user, password, database, host
+import mysql.connector
+
+with open("init_db.sql") as f:
     sql = f.read()
 
-conn = mysql.connector.connect(  #Nos conectamos con el motor de base de datos
-    host="localhost",
-    user="root",
-    passwd="test"
+conn = mysql.connector.connect(
+    host=host,
+    user=user,
+    password=password,
 )
 
 cursor = conn.cursor()
@@ -19,3 +22,4 @@ for statement in sql.split(";"):
 
 cursor.close()
 conn.close()
+
