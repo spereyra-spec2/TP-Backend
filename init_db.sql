@@ -7,17 +7,21 @@ CREATE TABLE IF NOT EXISTS equipos (
     estadio VARCHAR(50)
 );
 
+CREATE TABLE IF NOT EXISTS resultado (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    local INT NOT NULL,
+    visitante INT NOT NULL
+);
 
-CREATE TABLE IF NOT EXISTS partidos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+
+CREATE TABLE IF NOT EXISTS partido (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     equipo_local VARCHAR(50) NOT NULL,
     equipo_visitante VARCHAR(50) NOT NULL,
---    FOREIGN KEY (equipo_local) REFERENCES equipos(id) ON DELETE CASCADE,
---    FOREIGN KEY (equipo_visitante) REFERENCES equipos(id) ON DELETE CASCADE,
     fecha DATE NOT NULL,
-    fase VARCHAR(25) NOT NULL,
-    local int NOT NULL,
-    visitante int NOT NULL
+    fase ENUM('grupos', 'dieciseisavos', 'octavos', 'cuartos', 'semis', 'final') NOT NULL,
+    resultado INT,
+    FOREIGN KEY (resultado) REFERENCES resultado(id)
 );
 
 CREATE TABLE IF not EXISTS usuarios (
@@ -32,4 +36,5 @@ create table if not exists prediccion(
   local integer NOT NULL,
   visitante integer NOT NULL
 );
+
 

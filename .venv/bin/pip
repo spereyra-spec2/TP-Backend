@@ -1,4 +1,4 @@
-#!/home/crimson_king/Desktop/Facultad/IDS/TP2-ProyectoBackend/.venv/bin/python3
+#!/home/ju/TP-Backend/.venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
