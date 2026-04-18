@@ -15,10 +15,15 @@ def agregar_datos_partidos():
         data = request.json
 
         if not data:
-         return jsonify({'errors':[{ "code":"400",
-                                     "message":"BAD_REQUEST",
-                                     "level":"error",
-                                     "description":"El cuerpo de la solocitud está vació o mal formado"}]}), 400
+         return jsonify({'errors': [
+             {
+                "code":"400",
+                "message":"BAD_REQUEST",
+                "level":"error",
+                "description":"El cuerpo de la solocitud está vació o mal formado"
+             }
+         ]
+    }), 400
 
         equipo_local = data.get('equipo_local')
         equipo_visitante = data.get('equipo_visitante')
@@ -26,11 +31,15 @@ def agregar_datos_partidos():
         fase = data.get('fase')
 
         if not equipo_local or not equipo_visitante or not fecha or not fase:
-            return jsonify({'error':[{
-                                "code":"400",
-                                "message":"BAD_REQUEST",
-                                "level":"error",
-                                "description":"Faltan campos obligatorios"}]}), 400
+            return jsonify({'error': [
+                {
+                    "code":"400",
+                    "message":"BAD_REQUEST",
+                    "level":"error",
+                    "description":"Faltan campos obligatorios"
+                }
+            ]
+        }), 400
 
         cursor.execute(
             """SELECT * FROM partidos
@@ -40,11 +49,15 @@ def agregar_datos_partidos():
         existe_partido = cursor.fetchone()
 
         if existe_partido:
-            return jsonify({'errors':[{
+            return jsonify({'errors': [
+                {
                 "code":"409",
                 "message":"CONFLICT",
                 "level":"error",
-                "description":"Ya existe un partido con los mismos datos"}]}), 409
+                "description":"Ya existe un partido con los mismos datos"
+                }
+            ]
+        }), 409
 
         cursor.execute(
          """INSERT INTO partidos (equipo_local, equipo_visitante, fecha, fase) 
@@ -60,10 +73,15 @@ def agregar_datos_partidos():
 
     except Exception as e:
         print(e)
-        return jsonify({'error':[{ "code":"500",
-                                   "message":"INTERNAL_SERVER_ERROR",
-                                   "level":"error",
-                                   "description":"Ocurrió un error inesperado"}]}), 500
+        return jsonify({'error': [
+            {
+            "code":"500",
+            "message":"INTERNAL_SERVER_ERROR",
+            "level":"error",
+            "description":"Ocurrió un error inesperado"
+            }
+        ]
+    }), 500
 
 """
 
@@ -78,7 +96,15 @@ def mod_partido(id):
     data=request.get_json()
 
     if not data:
-        return jsonify({"error": "el request body no puede estar vacio"}), 400
+        return jsonify({"errors": [
+            {
+            "code":"400",
+            "message":"BAD_REQUEST",
+            "level":"error",
+            "description":"El request body no puede estar vacío"
+            }
+        ]
+    }), 400
         
     columnas_modificables = {"ciudad", "estadio", "fase", "fecha", "local", "visitante"}
 
