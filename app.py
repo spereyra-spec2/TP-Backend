@@ -2,7 +2,6 @@ from flask import Flask
 
 
 from flask_cors import CORS
-from routes import predicciones
 from routes.partidos import partidos_bp
 from routes.usuarios import usuarios_bp
 from routes.predicciones import predicciones_bp
