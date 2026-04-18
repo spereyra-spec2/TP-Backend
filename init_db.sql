@@ -23,6 +23,16 @@ CREATE TABLE IF not EXISTS usuarios (
 	nombre VARCHAR(60) NOT NULL,
 	email VARCHAR(90) NOT NULL UNIQUE
 );
-
+CREATE TABLE IF not EXISTS predicciones (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    usuario_id INT NOT NULL,
+    partido_id INT NOT NULL,
+    goles_local_pred INT NOT NULL,
+    goles_visitante_pred INT NOT NULL,
+    fecha_prediccion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+    FOREIGN KEY (partido_id) REFERENCES partidos(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_prediccion (usuario_id, partido_id)
+);
 
 

@@ -68,7 +68,7 @@ def get_usuarios():
             limit = LIMIT_DEFAULT
         else:
             limit = int(str_limit)
-    except Exepcion:
+    except Exception:
         return jsonify({"error": "_limit debe ser de tipo int"}), 400
 
     str_offset = request.args.get("_offset")
@@ -77,7 +77,7 @@ def get_usuarios():
             offset = 0
         else:
             offset = int(str_offset)
-    except Exeption:
+    except Exception:
         return jsonify({"error": "offset debe ser de tipo int"}), 400
 
     

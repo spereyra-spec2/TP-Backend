@@ -2,10 +2,6 @@ from flask import Flask, Blueprint, jsonify, request
 from db import get_connection
 
 partidos_bp = Blueprint("partidos",__name__)
-#app = Flask(__name__)
-
-
-#partidos_bp = Blueprint("partidos", __name__)
 
 @partidos_bp.route('', methods=['POST'])
 def agregar_datos_partidos():
