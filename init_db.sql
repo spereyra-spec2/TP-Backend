@@ -1,25 +1,34 @@
-CREATE DATABASE IF NOT EXISTS IDS;
+CREATE DATABASE IF NOT EXISTS prode_db;
+USE prode_db;
 
-use IDS;
+CREATE TABLE IF NOT EXISTS equipos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pais VARCHAR(50) NOT NULL,
+    estadio VARCHAR(50)
+);
 
-CREATE TABLE if not exists partidos(
-    id_partido INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    equipo_local varchar(15) not null,
-    equipo_visitante varchar(15) not null,
-    fecha timestamp default current_timestamp,
-    fase varchar(15) not null ,
-    local int(2) not null,
-    visitante int(2) not null
+
+CREATE TABLE IF NOT EXISTS partidos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    equipo_local VARCHAR(50) NOT NULL,
+    equipo_visitante VARCHAR(50) NOT NULL,
+--    FOREIGN KEY (equipo_local) REFERENCES equipos(id) ON DELETE CASCADE,
+--    FOREIGN KEY (equipo_visitante) REFERENCES equipos(id) ON DELETE CASCADE,
+    fecha DATE NOT NULL,
+    fase VARCHAR(25) NOT NULL,
+    local int NOT NULL,
+    visitante int NOT NULL
+);
+
+CREATE TABLE IF not EXISTS usuarios (
+	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	nombre VARCHAR(60) NOT NULL,
+	email VARCHAR(90) NOT NULL UNIQUE
 );
 
 create table if not exists prediccion(
-  id_usuario int(3) not null ,
-  id_partido int(3) not null ,
-  local int(2) not null,
-  visitante int(2) not null
+  id_usuario int NOT NULL ,
+  id_partido int NOT NULL ,
+  local integer NOT NULL,
+  visitante integer NOT NULL
 );
-
-
-
-
-
