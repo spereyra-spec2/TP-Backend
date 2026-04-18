@@ -15,7 +15,9 @@ CREATE TABLE IF NOT EXISTS partidos (
 --    FOREIGN KEY (equipo_local) REFERENCES equipos(id) ON DELETE CASCADE,
 --    FOREIGN KEY (equipo_visitante) REFERENCES equipos(id) ON DELETE CASCADE,
     fecha DATE NOT NULL,
-    fase VARCHAR(25) NOT NULL
+    fase VARCHAR(25) NOT NULL,
+    local int NOT NULL,
+    visitante int NOT NULL
 );
 
 CREATE TABLE IF not EXISTS usuarios (
@@ -24,5 +26,10 @@ CREATE TABLE IF not EXISTS usuarios (
 	email VARCHAR(90) NOT NULL UNIQUE
 );
 
-
+create table if not exists prediccion(
+  id_usuario int NOT NULL ,
+  id_partido int NOT NULL ,
+  local integer NOT NULL,
+  visitante integer NOT NULL
+);
 
