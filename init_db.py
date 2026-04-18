@@ -1,7 +1,6 @@
 import mysql.connector
-
 from config import user, password, database, host
-import mysql.connector
+
 
 with open("init_db.sql") as f:
     sql = f.read()
@@ -10,6 +9,7 @@ conn = mysql.connector.connect(
     host=host,
     user=user,
     password=password,
+    database=database
 )
 
 cursor = conn.cursor()

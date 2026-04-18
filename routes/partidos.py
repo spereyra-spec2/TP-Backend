@@ -21,6 +21,8 @@ def agregar_datos_partidos():
         equipo_visitante = data.get('equipo_visitante')
         fecha = data.get('fecha')
         fase = data.get('fase')
+        local = data.get('local')
+        visitante = data.get('visitante')
 
         if not equipo_local or not equipo_visitante or not fecha or not fase:
             return jsonify({'error': 'Datos inválidos'}), 400
@@ -36,8 +38,8 @@ def agregar_datos_partidos():
             return jsonify({'error': 'El partido ya existe'}), 409
 
         cursor.execute(
-         """INSERT INTO partidos (equipo_local, equipo_visitante, fecha, fase) 
-               VALUES (%s, %s, %s, %s)""", (equipo_local, equipo_visitante, fecha, fase))
+         """INSERT INTO partidos (equipo_local, equipo_visitante, fecha, fase, local, visitante) 
+               VALUES (%s, %s, %s, %s, %s, %s)""", (equipo_local, equipo_visitante, fecha, fase, local, visitante))
 
 
         conexion.commit()
