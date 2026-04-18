@@ -1,11 +1,11 @@
 CREATE DATABASE IF NOT EXISTS prode_db;
 USE prode_db;
 
-CREATE TABLE IF NOT EXISTS equipos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    pais VARCHAR(50) NOT NULL,
-    estadio VARCHAR(50)
-);
+-- CREATE TABLE IF NOT EXISTS equipos(
+    -- id INT AUTO_INCREMENT PRIMARY KEY,
+    -- pais VARCHAR(50) NOT NULL,
+    -- estadio VARCHAR(50)
+-- );
 
 CREATE TABLE IF NOT EXISTS resultado (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -34,7 +34,9 @@ create table if not exists prediccion(
   id_usuario int NOT NULL ,
   id_partido int NOT NULL ,
   local integer NOT NULL,
-  visitante integer NOT NULL
+  visitante integer NOT NULL,
+  FOREIGN KEY (id_partido) REFERENCES partido(id) ON DELETE CASCADE,
+  FOREIGN KEY (id_usuario) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 
 

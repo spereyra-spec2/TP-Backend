@@ -30,6 +30,7 @@ def agregar_datos_partidos():
         equipo_visitante = data.get('equipo_visitante')
         fecha = data.get('fecha')
         fase = data.get('fase')
+        resultado = data.get('resultado')
 
         if not equipo_local or not equipo_visitante or not fecha or not fase:
             return jsonify({'error': [
@@ -45,7 +46,7 @@ def agregar_datos_partidos():
         cursor.execute(
             """SELECT * FROM partidos
             WHERE equipo_local = %s AND equipo_visitante = %s
-            AND fecha = %s AND fase = %s""", (equipo_local, equipo_visitante, fecha, fase))
+            AND fecha = %s AND fase = %s AND resultado = %s""", (equipo_local, equipo_visitante, fecha, fase, resultado))
 
         existe_partido = cursor.fetchone()
 
@@ -61,8 +62,8 @@ def agregar_datos_partidos():
         }), 409
 
         cursor.execute(
-         """INSERT INTO partidos (equipo_local, equipo_visitante, fecha, fase) 
-               VALUES (%s, %s, %s, %s)""", (equipo_local, equipo_visitante, fecha, fase))
+         """INSERT INTO partidos (equipo_local, equipo_visitante, fecha, fase, resultado) 
+               VALUES (%s, %s, %s, %s)""", (equipo_local, equipo_visitante, fecha, fase, resultado))
 
 
         conexion.commit()
