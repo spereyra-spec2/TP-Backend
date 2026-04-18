@@ -1,13 +1,3 @@
-import mysql.connector
-
-def get_conection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="test",
-        database="IDS"
-    )
-
 def obtener_ranking(limit,offset):
     con = get_conection()
     #x=1/0 #error intencional (500)
@@ -24,7 +14,7 @@ def obtener_ranking(limit,offset):
             END
         ) AS puntos
     FROM prediccion
-    JOIN partidos ON prediccion.id_partido = partidos.id_partido
+    JOIN partidos ON prediccion.id_partido = partidos.id
     GROUP BY prediccion.id_usuario
     ORDER BY puntos DESC ASC
     LIMIT {limit} OFFSET {offset}
