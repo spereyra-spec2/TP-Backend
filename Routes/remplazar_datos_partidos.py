@@ -7,11 +7,10 @@ partidos_bp = Blueprint('partidos', __name__)
 
 @partidos_bp.route('/<int:id>/Resultados', methods=['PUT'])
 def remplazar_datos_partido(id):
-    #Abro conexión a la base de datos y creo un cursor para ejecutar consultas
     datos = request.get_json() 
     conexion = get_connection()
     cursor = conexion.cursor(dictionary=True)    
-    cursor.execute("SELECT id FROM partidos WHERE id = %s", (id,))
+    cursor.execute("SELECT resultado FROM partido WHERE = %s", (id,))
     #Tomo el primer valor consultado.
     partido = cursor.fetchone()
         
@@ -28,7 +27,7 @@ def remplazar_datos_partido(id):
         if(id < 0):
             return jsonify({"code": 400, "message": "Petición inválida", "level": "error", "description": f"El id:{id} no es un número válido"}), 400
 
-        query = "UPDATE partidos SET goles_local = %s, goles_visitante = %s WHERE id = %s"
+        query = "UPDATE resultado SET local = %s, visitante = %s WHERE id = %s"
         datos_ingresados = (datos['goles_local'], datos['goles_visitante'], id)
         
         cursor.execute(query, datos_ingresados)
@@ -39,7 +38,7 @@ def remplazar_datos_partido(id):
 
     except Exception as error:
         print(f"Error de MySQL: {error}")
-        return jsonify({"code": 500, "message": "Error interno", "level": "error", "description": "Error interno al acceder a la base de datos"}), 500
+        return jsonify({"code": 500, "message": f"{error}", "level": "error", "description": "Error interno al acceder a la base de datos"}), 500
 
     finally:
         cursor.close()
