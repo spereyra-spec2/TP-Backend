@@ -156,7 +156,7 @@ def agregar_datos_partidos():
         cursor.execute(
             """SELECT * FROM partidos
             WHERE equipo_local = %s AND equipo_visitante = %s
-            AND fecha = %s AND fase = %s AND resultado = %s""", (equipo_local, equipo_visitante, fecha, fase, resultado))
+            AND fecha = %s AND fase = %s""", (equipo_local, equipo_visitante, fecha, fase))
 
         existe_partido = cursor.fetchone()
 
@@ -173,7 +173,7 @@ def agregar_datos_partidos():
 
         cursor.execute(
          """INSERT INTO partidos (equipo_local, equipo_visitante, fecha, fase, resultado) 
-               VALUES (%s, %s, %s, %s)""", (equipo_local, equipo_visitante, fecha, fase, resultado))
+               VALUES (%s, %s, %s, %s, %s)""", (equipo_local, equipo_visitante, fecha, fase, resultado))
 
 
         conexion.commit()
