@@ -1,6 +1,8 @@
 from flask import Flask, Blueprint, jsonify, request, url_for, Response
 from db import get_connection, ejecutar_consulta
 from routes.validaciones_partidos import validar_id
+#from . import validaciones_partidos (lo otro no me funciono, asique use esta parte asi para la prueba))
+#from .validaciones_partidos import validar_id 
 import validaciones_partidos
 from typing import Any
 import mysql.connector
