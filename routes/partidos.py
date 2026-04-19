@@ -8,10 +8,6 @@ from typing import Any
 import mysql.connector
 
 partidos_bp = Blueprint("partidos",__name__)
-#app = Flask(__name__)
-
-
-#partidos_bp = Blueprint("partidos", __name__)
 
 DEFAULT_OFFSET: int = 0
 DEFAULT_LIMIT: int = 10
