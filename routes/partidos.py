@@ -1,11 +1,12 @@
 from flask import Flask, Blueprint, jsonify, request, url_for, Response
-from db import get_connection, ejecutar_consulta
+from db import get_connection, ejecutar_consulta, reemplazar_partido
 from routes.validaciones_partidos import validar_id
 #from . import validaciones_partidos (lo otro no me funciono, asique use esta parte asi para la prueba))
 #from .validaciones_partidos import validar_id 
 import validaciones_partidos
 from typing import Any
 import mysql.connector
+
 
 partidos_bp = Blueprint("partidos",__name__)
 
@@ -382,3 +383,33 @@ def delete_partido(id):
         ]
     }), 404
     return ("", 204)
+
+    @partidos_bp.route('/<int:id>', methods=['PUT'])
+def reemplazo_partido(id):
+    try:
+        data = request.get_json()
+        datos_requeridos = ['equipo_local','equipo_visitante', 'fecha', 'fase']
+        for dato in datos_requeridos:
+            if dato not in data: 
+                return jsonify({
+                    "errors":[{
+                        'status': 400,
+                        'error': 'bad request',
+                        'message': f'el campo {dato} no puede estar vacío'
+
+                    }]
+                }), 400
+
+        call = reemplazar_partido(id,data)
+        if call:
+            return '', 204
+        
+    except Exception as e:
+        return jsonify({
+           'errors':[{
+           'status': 500,
+            'error': 'internal problem',
+            'message': 'ha ocurrido un problema interno'
+              }]
+        }), 500
+
