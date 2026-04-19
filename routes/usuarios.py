@@ -44,6 +44,8 @@ def add_usuario():
 
 @usuarios_bp.route('/<int:id>', methods=['GET'])
 def obtener_usuario(id):
+    if id <= 0:
+        return jsonify(bad_request("El ID debe ser un número positivo.")), 400
     try:
         usuario = get_user(id)
 
@@ -58,12 +60,15 @@ def obtener_usuario(id):
 
 @usuarios_bp.route('/<int:id>', methods=['PUT'])
 def reemplazar_usuario(id):
+    if id <= 0:
+        return jsonify(bad_request("El ID debe ser un número positivo.")), 400
+
     data = request.get_json(silent=True)
     if not data:
-        return jsonify(bad_request), 400
+        return jsonify(bad_request("El body debe ser JSON")), 400
 
     if "nombre" not in data or "email" not in data:
-        return jsonify(bad_request), 400
+        return jsonify(bad_request("El body debe tener los campos 'nombre' y 'email.'")), 400
 
     try:
         datos_acts = put_user(data,id)
@@ -79,6 +84,9 @@ def reemplazar_usuario(id):
 
 @usuarios_bp.route('/<int:id>', methods=['DELETE'])
 def eliminar_usuario(id):
+    if id <= 0:
+        return jsonify(bad_request("El ID debe ser un número positivo.")), 400
+        
     try:
         usuario = get_user(id)
         if usuario is None:
