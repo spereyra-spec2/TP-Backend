@@ -76,6 +76,9 @@ def reemplazar_usuario(id):
         if datos_acts is False:
             return jsonify(not_found), 404
 
+        if datos_acts == "conflict":
+            return jsonify(conflict_error("El email ya existe en la base de datos.")), 409
+
         usuario = get_user(id)
         return jsonify({"mensaje" : "Usuario actualizado con existo." , "datos actualizados" : usuario}) , 200
 
