@@ -99,3 +99,83 @@ def obtener_ranking(limit, offset):
     con.close()
     return ranking
 
+def partido_tiene_resultado(partido_id):
+    conexion = None
+    cursor = None
+    try:
+        conexion = get_connection()
+        cursor = conexion.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT resultado_local, resultado_visitante 
+            FROM partidos 
+            WHERE id = %s
+        """, (partido_id,))
+        partido = cursor.fetchone()
+        
+        return partido and (
+            partido.get('resultado_local') is not None or 
+            partido.get('resultado_visitante') is not None
+        )
+    except Exception as e:
+        print(f"Error en partido_tiene_resultado: {e}")
+        return False
+    finally:
+        if cursor:
+            cursor.close()
+        if conexion:
+            conexion.close()
+
+
+def existe_prediccion(usuario_id, partido_id):
+    conexion = None
+    cursor = None
+    try:
+        conexion = get_connection()
+        cursor = conexion.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT id FROM predicciones 
+            WHERE usuario_id = %s AND partido_id = %s
+        """, (usuario_id, partido_id))
+        return cursor.fetchone() is not None
+    except Exception as e:
+        print(f"Error en existe_prediccion: {e}")
+        return False
+    finally:
+        if cursor:
+            cursor.close()
+        if conexion:
+            conexion.close()
+
+
+def guardar_prediccion(usuario_id, partido_id, goles_local, goles_visitante):
+    conexion = None
+    cursor = None
+    try:
+        conexion = get_connection()
+        cursor = conexion.cursor(dictionary=True)
+        
+        cursor.execute("""
+            INSERT INTO predicciones (usuario_id, partido_id, goles_local_pred, goles_visitante_pred, fecha_prediccion)
+            VALUES (%s, %s, %s, %s, NOW())
+        """, (usuario_id, partido_id, goles_local, goles_visitante))
+        
+        conexion.commit()
+        
+        nuevo_id = cursor.lastrowid
+        cursor.execute("""
+            SELECT id, usuario_id, partido_id, goles_local_pred, goles_visitante_pred, fecha_prediccion
+            FROM predicciones WHERE id = %s
+        """, (nuevo_id,))
+        
+        return cursor.fetchone()
+    except Exception as e:
+        print(f"Error en guardar_prediccion: {e}")
+        if conexion:
+            conexion.rollback()
+        return None
+    finally:
+        if cursor:
+            cursor.close()
+        if conexion:
+            conexion.close()
+
