@@ -1,8 +1,45 @@
 from flask import Blueprint, jsonify, request, url_for
 from db import get_user, put_user, delete_user, get_connection
 from errors import not_found, server_error, bad_request
+import mysql.connector
+from mysql.connector import IntegrityError
 
 usuarios_bp = Blueprint("usuarios", __name__)
+
+@usuarios_bp.route("", methods=["POST"])
+def add_usuario():
+    try:    
+        data = request.get_json(silent= True)
+        if data is None:
+            return jsonify({"errors":[
+                {"code": 400,
+                 "message": "Faltan campos obligatorios, nombre y email",
+                 "level": "error"
+                 }]}), 400
+        nombre = data.get("nombre")
+        email = data.get("email")
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+                   INSERT INTO usuarios (nombre, email)
+                   VALUES (%s, %s)
+                   """, (nombre, email))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({"message": "Usuario agregado correctamente"}), 201
+    except IntegrityError:
+        return jsonify({"errors":[
+                {"code": 409,
+                 "message": "El correo electronico ya se encuentra registrado",
+                 "level": "advertencia"
+                 }]}), 409
+    except Exception as e:
+        return jsonify({"errors":[
+                {"code": 500,
+                 "message": "Error interno del servidor",
+                 "level": "critico"
+                 }]}), 500
 
 
 @usuarios_bp.route('/<int:id>', methods=['GET'])
