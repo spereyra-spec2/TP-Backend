@@ -33,4 +33,17 @@ def bad_request(error):
     }
     return error400
 
+def conflict_error(error):
+    error409 = {
+        "error": [
+            {
+                "code": 409,
+                "message": "Conflicto",
+                "level": "warning",
+                "description": str(error)
+            }
+        ]
+    }
+    return error409
+
 # Cree esta parte para ahorrarme el escribir tanto.
