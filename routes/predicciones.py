@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, url_for
-from db import get_user, guardar_prediccion, existe_prediccion, partido_tiene_resultado
+from db import get_user, get_partido, guardar_prediccion, existe_prediccion, partido_tiene_resultado
 from errors import not_found, server_error, bad_request
 from datetime import datetime
 from .partidos import obtener_partidos
@@ -38,7 +38,7 @@ def agregar_prediccion(id):
             return jsonify(bad_request), 400
         
         partido_id = id 
-        partido = obtener_partidos(partido_id)
+        partido = get_partido(partido_id)
 
         if not partido:
             return jsonify(not_found), 404
