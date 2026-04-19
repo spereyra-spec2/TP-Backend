@@ -227,6 +227,15 @@ def mod_partido(id):
         if col in columnas_modificables:
             valores_a_mod[col] = value
     if not valores_a_mod:
+        return jsonify({"errors": [
+            {
+            "code":"400",
+            "message":"BAD_REQUEST",
+            "level":"error",
+            "description":"El request body no puede estar vacío"
+            }
+        ]
+    }), 400
         return jsonify({"error": "no se envio ningun valor modificable"}), 400
 
     tmp = []
@@ -244,7 +253,15 @@ def mod_partido(id):
     try:
         cursor.execute("SELECT id FROM partidos WHERE ID = %s", (id,))
         if not cursor.fetchone():
-            return jsonify({"error": "partido a modificar no encontrado"}), 404
+        return jsonify({"errors": [
+            {
+            "code":"404",
+            "message":"NOT_FOUND",
+            "level":"error",
+            "description":"partido a modificar no encontrado"
+            }
+        ]
+    }), 404
 
         cursor.execute(f"UPDATE partidos SET {values_format} WHERE ID = %s", values)
 
@@ -252,7 +269,14 @@ def mod_partido(id):
         return jsonify({"message": "item actualizado correctamente"}), 200
 
     except Exception as ex:
-        return jsonify({"error": str(ex)}),500
+        "errors": [
+            {
+                "code": "500",
+                "message": "INTERNAL SERVER ERROR",
+                "level": "error",
+                "description": str(ex)
+            }
+    ]}), 500
 
     cursor.close()
     conn.close()
