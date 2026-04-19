@@ -1,21 +1,27 @@
 CREATE DATABASE IF NOT EXISTS prode_db;
 USE prode_db;
 
-CREATE TABLE IF NOT EXISTS equipos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    pais VARCHAR(50) NOT NULL,
-    estadio VARCHAR(50)
+-- CREATE TABLE IF NOT EXISTS equipos(
+    -- id INT AUTO_INCREMENT PRIMARY KEY,
+    -- pais VARCHAR(50) NOT NULL,
+    -- estadio VARCHAR(50)
+-- );
+
+CREATE TABLE IF NOT EXISTS resultado (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    local INT NOT NULL,
+    visitante INT NOT NULL
 );
 
 
-CREATE TABLE IF NOT EXISTS partidos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS partido (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     equipo_local VARCHAR(50) NOT NULL,
     equipo_visitante VARCHAR(50) NOT NULL,
---    FOREIGN KEY (equipo_local) REFERENCES equipos(id) ON DELETE CASCADE,
---    FOREIGN KEY (equipo_visitante) REFERENCES equipos(id) ON DELETE CASCADE,
     fecha DATE NOT NULL,
-    fase VARCHAR(25) NOT NULL
+    fase ENUM('grupos', 'dieciseisavos', 'octavos', 'cuartos', 'semis', 'final') NOT NULL,
+    resultado INT,
+    FOREIGN KEY (resultado) REFERENCES resultado(id)
 );
 
 CREATE TABLE IF not EXISTS usuarios (
@@ -23,16 +29,14 @@ CREATE TABLE IF not EXISTS usuarios (
 	nombre VARCHAR(60) NOT NULL,
 	email VARCHAR(90) NOT NULL UNIQUE
 );
-CREATE TABLE IF not EXISTS predicciones (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    usuario_id INT NOT NULL,
-    partido_id INT NOT NULL,
-    goles_local_pred INT NOT NULL,
-    goles_visitante_pred INT NOT NULL,
-    fecha_prediccion DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-    FOREIGN KEY (partido_id) REFERENCES partidos(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_prediccion (usuario_id, partido_id)
+
+create table if not exists prediccion(
+  id_usuario int NOT NULL ,
+  id_partido int NOT NULL ,
+  local integer NOT NULL,
+  visitante integer NOT NULL,
+  FOREIGN KEY (id_partido) REFERENCES partido(id) ON DELETE CASCADE,
+  FOREIGN KEY (id_usuario) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 
 

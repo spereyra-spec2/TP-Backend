@@ -8,6 +8,7 @@ not_found = {
                 }
             ]
         }
+
 def server_error(error):
     error500 = {"error": [
                     {
@@ -20,15 +21,29 @@ def server_error(error):
             }
     return error500
 
-bad_request = {
-            "error": [
-                {
-                    "code": 400,
-                    "message": "Petición inválida",
-                    "level": "info",
-                    "description": "Faltan campos obligatorios o el formato JSON es incorrecto. Verifica los datos ingresados en el body."
-                }
-            ]
-        }
+def bad_request(error):
+    error400 = {"error": [
+            {
+                "code": 400,
+                "message": "Petición inválida",
+                "level": "info",
+                "description": error
+            }
+        ]
+    }
+    return error400
+
+def conflict_error(error):
+    error409 = {
+        "error": [
+            {
+                "code": 409,
+                "message": "Conflicto",
+                "level": "warning",
+                "description": str(error)
+            }
+        ]
+    }
+    return error409
 
 # Cree esta parte para ahorrarme el escribir tanto.

@@ -1,12 +1,51 @@
 from flask import Blueprint, jsonify, request, url_for
 from db import get_user, put_user, delete_user, get_connection
 from errors import not_found, server_error, bad_request
+import mysql.connector
+from mysql.connector import IntegrityError
 
 usuarios_bp = Blueprint("usuarios", __name__)
+
+@usuarios_bp.route("", methods=["POST"])
+def add_usuario():
+    try:    
+        data = request.get_json(silent= True)
+        if data is None:
+            return jsonify({"errors":[
+                {"code": 400,
+                 "message": "Faltan campos obligatorios, nombre y email",
+                 "level": "error"
+                 }]}), 400
+        nombre = data.get("nombre")
+        email = data.get("email")
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+                   INSERT INTO usuarios (nombre, email)
+                   VALUES (%s, %s)
+                   """, (nombre, email))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({"message": "Usuario agregado correctamente"}), 201
+    except IntegrityError:
+        return jsonify({"errors":[
+                {"code": 409,
+                 "message": "El correo electronico ya se encuentra registrado",
+                 "level": "advertencia"
+                 }]}), 409
+    except Exception as e:
+        return jsonify({"errors":[
+                {"code": 500,
+                 "message": "Error interno del servidor",
+                 "level": "critico"
+                 }]}), 500
 
 
 @usuarios_bp.route('/<int:id>', methods=['GET'])
 def obtener_usuario(id):
+    if id <= 0:
+        return jsonify(bad_request("El ID debe ser un número positivo.")), 400
     try:
         usuario = get_user(id)
 
@@ -21,18 +60,24 @@ def obtener_usuario(id):
 
 @usuarios_bp.route('/<int:id>', methods=['PUT'])
 def reemplazar_usuario(id):
+    if id <= 0:
+        return jsonify(bad_request("El ID debe ser un número positivo.")), 400
+
     data = request.get_json(silent=True)
     if not data:
-        return jsonify(bad_request), 400
+        return jsonify(bad_request("El body debe ser JSON")), 400
 
     if "nombre" not in data or "email" not in data:
-        return jsonify(bad_request), 400
+        return jsonify(bad_request("El body debe tener los campos 'nombre' y 'email.'")), 400
 
     try:
         datos_acts = put_user(data,id)
 
         if datos_acts is False:
             return jsonify(not_found), 404
+
+        if datos_acts == "conflict":
+            return jsonify(conflict_error("El email ya existe en la base de datos.")), 409
 
         usuario = get_user(id)
         return jsonify({"mensaje" : "Usuario actualizado con existo." , "datos actualizados" : usuario}) , 200
@@ -42,6 +87,9 @@ def reemplazar_usuario(id):
 
 @usuarios_bp.route('/<int:id>', methods=['DELETE'])
 def eliminar_usuario(id):
+    if id <= 0:
+        return jsonify(bad_request("El ID debe ser un número positivo.")), 400
+        
     try:
         usuario = get_user(id)
         if usuario is None:
