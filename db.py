@@ -1,3 +1,4 @@
+from typing import Any
 import mysql.connector
 import config
 
@@ -9,6 +10,18 @@ def get_connection(): #Establece conneción con la base de datos.
         password=config.password,
         database=config.database
     )
+
+def ejecutar_consulta(query: str) -> list[dict[str, Any]] | None:
+    with get_connection() as conexion:
+        # conexion.set_charset_collation("utf8mb4", "utfmb4_0900_ai_ci")
+        with conexion.cursor(dictionary = True) as cursor:
+            cursor.execute(query)
+            print(query)
+
+            if cursor.description:
+                return cursor.fetchall()
+            
+            conexion.commit()
 
 def get_user(id): #Obtiene el usuario con el ID introducido en la base de datos.
     conn = get_connection()
