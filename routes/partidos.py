@@ -142,7 +142,7 @@ def agregar_datos_partidos():
         fase = data.get('fase')
         resultado = data.get('resultado')
 
-        if not equipo_local or not equipo_visitante or not fecha or not fase:
+        if not equipo_local or not equipo_visitante or not fecha or not fase or resultado is None:
             return jsonify({'error': [
                 {
                     "code":"400",
