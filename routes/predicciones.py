@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request, url_for
-from usuarios import obtener_usuario
-from db import get_connection, guardar_prediccion, existe_prediccion, partido_tiene_resultado
+from db import get_user, get_partido, guardar_prediccion, existe_prediccion, partido_tiene_resultado
 from errors import not_found, server_error, bad_request
 from datetime import datetime
 
@@ -38,13 +37,13 @@ def agregar_prediccion(id):
             return jsonify(bad_request), 400
         
         partido_id = id 
-        partido = obtener_partido(partido_id)
+        partido = get_partido(partido_id)
 
         if not partido:
             return jsonify(not_found), 404
         
 
-        usuario = obtener_usuario(id_usuario)
+        usuario = get_user(id_usuario)
         if not usuario:
             return jsonify(not_found), 404
         

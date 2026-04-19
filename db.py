@@ -56,7 +56,23 @@ def delete_user(id): # Elimina los datos del usuario con el ID proporcionado par
             cur.close()
         if conn:
             conn.close()
-            
+def get_partido(partido_id):
+    conexion = None
+    cursor = None
+    try:
+        conexion = get_connection()
+        cursor = conexion.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM partidos WHERE id = %s", (partido_id,))
+        return cursor.fetchone()
+    except Exception as e:
+        print(f"Error en obtener_partido: {e}")
+        return None
+    finally:
+        if cursor:
+            cursor.close()
+        if conexion:
+            conexion.close()
+
 def partido_tiene_resultado(partido_id):
     conn = get_connection()
     cur = conn.cursor(dictionary=True)
