@@ -37,7 +37,6 @@ def remplazar_datos_partido(id):
     
 
     except Exception as error:
-        print(f"Error de MySQL: {error}")
         return jsonify({"code": 500, "message": f"{error}", "level": "error", "description": "Error interno al acceder a la base de datos"}), 500
 
     finally:
