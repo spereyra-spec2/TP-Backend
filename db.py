@@ -48,8 +48,10 @@ def put_user(data,id): #Actualiza los datos del usuario con el ID proporcionado 
         conn.commit()
         if cur.rowcount > 0:
             return True
-
         return False
+    except mysql.connector.Error as error:
+        if error.errno == 1062:
+            return "conflict"
     finally:
         if cur:
             cur.close()
