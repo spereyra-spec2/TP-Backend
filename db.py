@@ -72,6 +72,20 @@ def delete_user(id): # Elimina los datos del usuario con el ID proporcionado par
         if conn:
             conn.close()
 
+def get_partido(partido_id):
+    conn = None
+    cursor = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM partidos WHERE id = %s", (partido_id,))
+        return cursor.fetchone()
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
 def obtener_ranking(limit, offset):
     con = get_connection()
     # x=1/0 #error intencional (500)
@@ -179,34 +193,3 @@ def guardar_prediccion(usuario_id, partido_id, goles_local, goles_visitante):
         if conexion:
             conexion.close()
 
-def reemplazar_partido(id, data): 
-    try:
-        con = get_connection()
-        cursor = con.cursor()
-
-        query= 'UPDATE partido SET equipo_local = %s, equipo_visitante = %s, fecha = %s, fase = %s WHERE id = %s'
-    
-        new_values= (
-            data['equipo_local'],
-            data['equipo_visitante'],
-            data['fecha'],
-            data['fase'],
-            id
-        )
- 
-        cursor.execute(query,new_values)
-        con.commit()
-
-        filas_afectadas = cursor.rowcount
-    
-        cursor.close()
-
-    except Exception as e:
-        print(f"Error en la base de datos: {e}")
-        return False
-    
-    finally:
-        if con and con.is_connected():
-            con.close()
-    
-    return filas_afectadas > 0
