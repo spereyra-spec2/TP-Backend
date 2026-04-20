@@ -1,8 +1,8 @@
 from flask import Flask, Blueprint, jsonify, request, url_for, Response
 from db import get_connection, ejecutar_consulta, reemplazar_partido
-from routes.validaciones_partidos import validar_id
-#from routes import validaciones_partidos
-import validaciones_partidos
+#from routes.validaciones_partidos import validar_id
+from routes import validaciones_partidos
+#import validaciones_partidos
 from typing import Any
 import mysql.connector
 
@@ -249,15 +249,13 @@ def mod_partido(id):
     try:
         cursor.execute("SELECT id FROM partidos WHERE ID = %s", (id,))
         if not cursor.fetchone():
-        return jsonify({"errors": [
-            {
-            "code":"404",
-            "message":"NOT_FOUND",
-            "level":"error",
-            "description":"partido a modificar no encontrado"
-            }
-        ]
-    }), 404
+            return jsonify({"errors": [
+                {
+                    "code":"404",
+                    "message":"NOT_FOUND",
+                    "level":"error",
+                    "description":"partido a modificar no encontrado"
+                }]}), 404
 
         cursor.execute(f"UPDATE partidos SET {values_format} WHERE ID = %s", values)
 
@@ -265,7 +263,7 @@ def mod_partido(id):
         return jsonify({"message": "item actualizado correctamente"}), 200
 
     except Exception as ex:
-        "errors": [
+        ({"errors": [
             {
                 "code": "500",
                 "message": "INTERNAL SERVER ERROR",
@@ -383,7 +381,7 @@ def delete_partido(id):
     }), 404
     return ("", 204)
 
-    @partidos_bp.route('/<int:id>', methods=['PUT'])
+@partidos_bp.route('/<int:id>', methods=['PUT'])
 def reemplazo_partido(id):
     try:
         data = request.get_json()
