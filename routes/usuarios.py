@@ -1,8 +1,9 @@
 from flask import Blueprint, jsonify, request, url_for
 from db import get_user, put_user, delete_user, get_connection
-from errors import not_found, server_error, bad_request
+from errors import not_found, server_error, bad_request, conflict_error
 import mysql.connector
 from mysql.connector import IntegrityError
+from routes.validaciones_partidos import validar_id
 
 usuarios_bp = Blueprint("usuarios", __name__)
 
@@ -10,7 +11,7 @@ usuarios_bp = Blueprint("usuarios", __name__)
 def add_usuario():
     try:    
         data = request.get_json(silent= True)
-        if data is None:
+        if data is None or ("nombre" not in data or "email" not in data):
             return jsonify({"errors":[
                 {"code": 400,
                  "message": "Faltan campos obligatorios, nombre y email",
@@ -41,22 +42,33 @@ def add_usuario():
                  "level": "critico"
                  }]}), 500
 
-
-@usuarios_bp.route('/<int:id>', methods=['GET'])
+@usuarios_bp.route('/<id>', methods=['GET'])
 def obtener_usuario(id):
-    if id <= 0:
-        return jsonify(bad_request("El ID debe ser un número positivo.")), 400
+    try:
+        id = int(id)
+        validar_id(id)
+    except ValueError as e:
+            return jsonify({
+            "errors": [
+                {
+                    "code": "400",
+                    "message": "BAD REQUEST",
+                    "level": "error",
+                    "description": str(e)
+                }
+            ]
+        }), 400
+
     try:
         usuario = get_user(id)
 
         if usuario is None:
             return jsonify(not_found), 404
 
-        return jsonify({"mensaje": "Usuario encontrado.", "datos": usuario}), 200
+        return jsonify(usuario), 200
 
     except Exception as e:
         return jsonify(server_error(e)), 500
-
 
 @usuarios_bp.route('/<int:id>', methods=['PUT'])
 def reemplazar_usuario(id):
@@ -80,15 +92,27 @@ def reemplazar_usuario(id):
             return jsonify(conflict_error("El email ya existe en la base de datos.")), 409
 
         usuario = get_user(id)
-        return jsonify({"mensaje" : "Usuario actualizado con existo." , "datos actualizados" : usuario}) , 200
+        return ("", 204)
 
     except Exception as e:
         return jsonify(server_error(e)), 500
 
-@usuarios_bp.route('/<int:id>', methods=['DELETE'])
+@usuarios_bp.route('/<id>', methods=['DELETE'])
 def eliminar_usuario(id):
-    if id <= 0:
-        return jsonify(bad_request("El ID debe ser un número positivo.")), 400
+    try:
+        id = int(id)
+        validar_id(id)
+    except ValueError as e:
+            return jsonify({
+            "errors": [
+                {
+                    "code": "400",
+                    "message": "BAD REQUEST",
+                    "level": "error",
+                    "description": str(e)
+                }
+            ]
+        }), 400
         
     try:
         usuario = get_user(id)
@@ -100,7 +124,7 @@ def eliminar_usuario(id):
         if delete is False:
             return jsonify(not_found), 404
 
-        return jsonify({"mensaje" : "Usuario eliminado con exito." , "datos eliminados" : usuario}) , 200
+        return ("", 204)
 
     except Exception as e:
         return jsonify(server_error(e)), 500
@@ -145,7 +169,7 @@ def get_usuarios():
         conn.close()
 
     if not usuarios:
-        return jsonify({"error": "tabla usuarios vacia"}), 204
+        return ("", 204)
 
     last_offset = max(0, (total // limit) * limit)
     if last_offset >= total:

@@ -6,16 +6,18 @@ from mysql.connector import Error
 ranking_bp = Blueprint("ranking",__name__)
 
 @ranking_bp.route('', methods=['GET'])
-
 def get_ranking():
     limit = request.args.get('_limit', default=10, type=int)
     offset = request.args.get('_offset', default=0, type=int)
 
     try:
         ranking = obtener_ranking(limit,offset)
-        if not ranking:
-            return "", 204
+        if ranking is None:
+             return jsonify({"errors": [{"code": "500", "message": "Error al obtener el ranking"}]}), 500
 
+        if len(ranking) == 0:
+            return "", 204
+        
         return jsonify(ranking),200
 
     except Error as e:

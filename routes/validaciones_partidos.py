@@ -43,7 +43,7 @@ def validar_fase(fase: str) -> dict | None:
             "code": 400,
             "message": "Parámetro 'fase' inválido",
             "level": "error",
-            "description": f"El valor del parámetro 'fase' debe ser uno de los siguientes: {", ".join(FASES)}."
+            "description": f"El valor del parámetro 'fase' debe ser uno de los siguientes: {'', ''.join(FASES)}."
         }
 
 def validar_offset(offset: object) -> dict | None:

@@ -5,7 +5,7 @@ from db import get_connection
 partidos_bp = Blueprint('partidos', __name__)
 
 
-@partidos_bp.route('/<int:id>/Resultados', methods=['PUT'])
+@partidos_bp.route('/<int:id>/resultados', methods=['PUT'])
 def remplazar_datos_partido(id):
     datos = request.get_json() 
     conexion = get_connection()

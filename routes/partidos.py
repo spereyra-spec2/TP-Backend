@@ -1,9 +1,7 @@
 from flask import Flask, Blueprint, jsonify, request, url_for, Response
 from db import get_connection, ejecutar_consulta, reemplazar_partido
-#from routes.validaciones_partidos import validar_id
-from routes import validaciones_partidos
-from validaciones_partidos import validar_id
-#import validaciones_partidos
+from routes.validaciones_partidos import validaciones_partidos
+from routes.validaciones_partidos import validar_id
 from typing import Any
 import mysql.connector
 
@@ -29,9 +27,11 @@ def obtener_partidos() -> Response:
     offset_int: int = int(offset)
     limit_int: int = int(limit)
 
-    condicion: str = f"WHERE {f'(`equipo_local`="{equipo}" OR `equipo_visitante`="{equipo}")' if equipo else ""}" \
-                     f"{f'(DATE(`fecha`)="{fecha_str}")' if fecha_str else ""}" \
-                     f"{f'(`fase`="{fase.lower()}")' if fase else ""}"
+    equipo_filter = f'(`equipo_local`="{equipo}" OR `equipo_visitante`="{equipo}")' if equipo else ""
+    fecha_filter  = f'(DATE(`fecha`)="{fecha_str}")' if fecha_str else ""
+    fase_filter   = f'(`fase`="{fase.lower()}")' if fase else ""
+
+    condicion: str = f"WHERE {equipo_filter}{fecha_filter}{fase_filter}"
     
     nueva_condicion: str = ""
     for i in range(len(condicion)):
@@ -39,7 +39,8 @@ def obtener_partidos() -> Response:
         if i != len(condicion) - 1 and condicion[i] == ')' and condicion[i + 1] == '(':
             nueva_condicion += " AND "
 
-    consulta: str = f"SELECT * FROM `prode`.`partido` {nueva_condicion if nueva_condicion.strip() != "WHERE" else ""} LIMIT {limit_int} OFFSET {offset_int}"
+    condicion_final = nueva_condicion if nueva_condicion.strip() != "WHERE" else ""
+    consulta: str = f"SELECT * FROM `prode`.`partido` {condicion_final} LIMIT {limit_int} OFFSET {offset_int}"
 
     try:
         partidos: list[dict[str, Any]] = ejecutar_consulta(consulta)
@@ -68,7 +69,8 @@ def obtener_partidos() -> Response:
         }), 404
     
     try:
-        total_coincidencias: int = ejecutar_consulta(f"SELECT COUNT(*) as total FROM `prode`.`partido` {nueva_condicion if nueva_condicion.strip() != "WHERE" else ""}")[0]["total"]
+        condicion_final = nueva_condicion if nueva_condicion.strip() != "WHERE" else ""
+        total_coincidencias: int = ejecutar_consulta(f"SELECT COUNT(*) as total FROM `prode`.`partido` {condicion_final}")[0]["total"]
     except mysql.connector.Error as error:
         return jsonify({
             "errors": [
@@ -139,7 +141,7 @@ def agregar_datos_partidos():
         fase = data.get('fase')
         resultado = data.get('resultado')
 
-        if not equipo_local or not equipo_visitante or not fecha or not fase or resultado is None:
+        if not equipo_local or not equipo_visitante or not fecha or not fase:
             return jsonify({'error': [
                 {
                     "code":"400",
@@ -151,7 +153,7 @@ def agregar_datos_partidos():
         }), 400
 
         cursor.execute(
-            """SELECT * FROM partidos
+            """SELECT * FROM partido
             WHERE equipo_local = %s AND equipo_visitante = %s
             AND fecha = %s AND fase = %s""", (equipo_local, equipo_visitante, fecha, fase))
 
@@ -169,7 +171,7 @@ def agregar_datos_partidos():
         }), 409
 
         cursor.execute(
-         """INSERT INTO partidos (equipo_local, equipo_visitante, fecha, fase, resultado) 
+         """INSERT INTO partido (equipo_local, equipo_visitante, fecha, fase, resultado) 
                VALUES (%s, %s, %s, %s, %s)""", (equipo_local, equipo_visitante, fecha, fase, resultado))
 
 
@@ -215,7 +217,7 @@ def mod_partido(id):
         ]
     }), 400
         
-    columnas_modificables = {"ciudad", "estadio", "fase", "fecha", "local", "visitante"}
+    columnas_modificables = {"equipo_local", "equipo_visitante", "fecha", "fase", "resultado"}
 
     valores_a_mod = {}
 
@@ -224,15 +226,6 @@ def mod_partido(id):
         if col in columnas_modificables:
             valores_a_mod[col] = value
     if not valores_a_mod:
-        return jsonify({"errors": [
-            {
-            "code":"400",
-            "message":"BAD_REQUEST",
-            "level":"error",
-            "description":"El request body no puede estar vacío"
-            }
-        ]
-    }), 400
         return jsonify({"error": "no se envio ningun valor modificable"}), 400
 
     tmp = []
@@ -248,7 +241,7 @@ def mod_partido(id):
     cursor = conn.cursor(dictionary=True)
 
     try:
-        cursor.execute("SELECT id FROM partidos WHERE ID = %s", (id,))
+        cursor.execute("SELECT id FROM partido WHERE ID = %s", (id,))
         if not cursor.fetchone():
             return jsonify({"errors": [
                 {
@@ -258,13 +251,13 @@ def mod_partido(id):
                     "description":"partido a modificar no encontrado"
                 }]}), 404
 
-        cursor.execute(f"UPDATE partidos SET {values_format} WHERE ID = %s", values)
+        cursor.execute(f"UPDATE partido SET {values_format} WHERE ID = %s", values)
 
         conn.commit()
-        return jsonify({"message": "item actualizado correctamente"}), 200
+        return ("", 200)
 
     except Exception as ex:
-        ({"errors": [
+        return jsonify({"errors": [
             {
                 "code": "500",
                 "message": "INTERNAL SERVER ERROR",
@@ -273,13 +266,9 @@ def mod_partido(id):
             }
     ]}), 500
 
-    cursor.close()
-    conn.close()
-
-
-
-
-partidos_bp = Blueprint("partidos", __name__)
+    finally:
+        cursor.close()
+        conn.close()
 
 @partidos_bp.route("/<id>", methods=["GET"])
 def get_partido(id):
@@ -410,4 +399,70 @@ def reemplazo_partido(id):
             'message': 'ha ocurrido un problema interno'
               }]
         }), 500
+     
+@partidos_bp.route('/<int:id>/resultados', methods=['PUT'])
+def remplazar_datos_partido(id):
+    datos = request.get_json()
 
+    if not datos or 'local' not in datos or 'visitante' not in datos:
+        return jsonify({
+            "code": 400,
+            "message": "Petición inválida",
+            "level": "error",
+            "description": "Faltan campos obligatorios"
+        }), 400
+
+    if not isinstance(datos['local'], int) or not isinstance(datos['visitante'], int):
+        return jsonify({
+            "code": 400,
+            "message": "Petición inválida",
+            "level": "error",
+            "description": "Los datos deben ser números"
+        }), 400
+
+    conexion = get_connection()
+    cursor = conexion.cursor(dictionary=True)
+
+    try:
+        cursor.execute("SELECT id, resultado FROM partido WHERE id = %s", (id,))
+        partido = cursor.fetchone()
+
+        if not partido:
+            return jsonify({
+                "code": 404,
+                "message": "No encontrado",
+                "level": "error",
+                "description": f"El partido {id} no existe"
+            }), 404
+
+        resultado_id = partido['resultado']
+
+
+        if resultado_id is None:
+            insert_query = "INSERT INTO resultado (local, visitante) VALUES (%s, %s)"
+            cursor.execute(insert_query, (datos['local'], datos['visitante']))
+
+            nuevo_resultado_id = cursor.lastrowid
+
+
+            update_partido = "UPDATE partido SET resultado = %s WHERE id = %s"
+            cursor.execute(update_partido, (nuevo_resultado_id, id))
+
+        else:
+            update_query = "UPDATE resultado SET local = %s, visitante = %s WHERE id = %s"
+            cursor.execute(update_query, (datos['local'], datos['visitante'], resultado_id))
+
+        conexion.commit()
+        return '', 204
+
+    except Exception as error:
+        return jsonify({
+            "code": 500,
+            "message": str(error),
+            "level": "error",
+            "description": "Error interno al acceder a la base de datos"
+        }), 500
+
+    finally:
+        cursor.close()
+        conexion.close()
