@@ -40,7 +40,7 @@ def obtener_partidos() -> Response:
             nueva_condicion += " AND "
 
     condicion_final = nueva_condicion if nueva_condicion.strip() != "WHERE" else ""
-    consulta: str = f"SELECT * FROM `prode`.`partido` {condicion_final} LIMIT {limit_int} OFFSET {offset_int}"
+    consulta: str = f"SELECT * FROM `prode_db`.`partido` {condicion_final} LIMIT {limit_int} OFFSET {offset_int}"
 
     try:
         partidos: list[dict[str, Any]] = ejecutar_consulta(consulta)
@@ -70,7 +70,9 @@ def obtener_partidos() -> Response:
     
     try:
         condicion_final = nueva_condicion if nueva_condicion.strip() != "WHERE" else ""
-        total_coincidencias: int = ejecutar_consulta(f"SELECT COUNT(*) as total FROM `prode`.`partido` {condicion_final}")[0]["total"]
+        consulta_count = f"SELECT COUNT(*) as total FROM `prode_db`.`partido` {condicion_final}"
+        print(f"Query count: {consulta_count}")
+        total_coincidencias: int = ejecutar_consulta(f"SELECT COUNT(*) as total FROM `prode_db`.`partido` {condicion_final}")[0]["total"]
     except mysql.connector.Error as error:
         return jsonify({
             "errors": [

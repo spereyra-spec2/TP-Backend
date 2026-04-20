@@ -11,7 +11,7 @@ def init_db():
         host=host,
         user=user,
         password=password,
-        database=database
+        #database=database
     )
 
     cursor = conn.cursor()
